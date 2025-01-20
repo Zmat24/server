@@ -1,0 +1,4 @@
+db
+dist
+.env
+schema.config.js

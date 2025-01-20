@@ -1,0 +1,18 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "A lightweight CRUD lib for handling schemas and data storage.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "serve": "bun ./dist/src/server.js"
+  },
+  "keywords": ["crud", "json" , "db" , "server", "bun"],
+  "author": "Matin Soleymani",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
