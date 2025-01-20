@@ -5,7 +5,7 @@ const handlers: { [key: string]: CRUDHandler } = {};
 const config = await loadUserSchemaConfig();
 
 for (const schemaName of Object.keys(config.schemas)) {
-    handlers[schemaName] = new CRUDHandler(config.storage, schemaName);
+    handlers[schemaName] = new CRUDHandler(config.storage, schemaName, config.schemas[schemaName]);
 }
 
 const appPort = process.env.PORT ?? 3232;
@@ -41,13 +41,13 @@ export default {
         if (!handler) {
             return new Response("Schema not found", { status: 404 });
         }
-
+        
         try {
             switch (action) {
                 case "create":
                     return handler.create(await req.json());
-                case "read":
-                    return handler.read(Number(id));
+                case "view":
+                    return handler.view(Number(id));
                 case "update":
                     return new Response(
                         JSON.stringify(handler.update(Number(id), await req.json())),

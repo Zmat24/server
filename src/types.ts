@@ -1,13 +1,19 @@
 export interface SchemaField {
-    [key: string]: {
-        type: string,
-        validation ?: string|null,
-        endpoints: {
-            create: boolean,
-            read: boolean,
-            update: boolean,
-            delete: boolean,
-        }
+    endpoints?: {
+        create: boolean | null;
+        view: boolean | null;
+        update: boolean | null;
+        delete: boolean | null;
+    };
+    middleware?: string[] | null;
+    auth?: {
+        type: "jwt" | "login";
+    };
+    fields: {
+        [key: string]: {
+            validation?: string | null;
+            hash?: boolean | null
+        };
     };
 }
 

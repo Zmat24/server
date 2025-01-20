@@ -1,13 +1,17 @@
 import { getStorage } from "./storage";
+import { SchemaField } from "./types";
 import { validateData } from "./validation";
+import { createJWT } from "./JWT";
 
 export class CRUDHandler {
     private storage: any;
     private schemaName: string;
+    private schema: SchemaField;
 
-    constructor(storageType: "json" | "database", schemaName: string) {
+    constructor(storageType: "json" | "database", schemaName: string, schema: SchemaField) {
         this.storage = getStorage(storageType, schemaName);
         this.schemaName = schemaName;
+        this.schema = schema;
     }
 
     async create(item: any) {
@@ -20,19 +24,30 @@ export class CRUDHandler {
                 status: validationError.status,
                 headers: { "Content-Type": "application/json" },
             });
-        }else {
-            const data = this.storage.readData();
-            const id = Object.keys(data).length + 1;
-            data[id] = item;
-            this.storage.writeData(data);
-            return new Response(JSON.stringify({ id, ...item }), {
-                status: 201,
-                headers: { "Content-Type": "application/json" },
-            });
         }
+
+        const data = this.storage.readData();
+        const id = Object.keys(data).length + 1;
+
+        if(this.schema.auth)
+        {
+            item['access_token'] = createJWT({
+                sub: id,
+                name: item['name'],
+                iat: Math.floor(Date.now() / 1000), 
+            } , process.env.JWT_SECRET);
+        }
+
+        data[id] = item;
+
+        this.storage.writeData(data);
+        return new Response(JSON.stringify({ id, ...item }), {
+            status: 201,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
-    read(id: number) {
+    view(id: number) {
         const data = this.storage.readData();
         if(data[id])
         {
@@ -50,7 +65,7 @@ export class CRUDHandler {
 
     update(id: number, item: any) {
         const data = this.storage.readData();
-        if (!data[id]) throw new Error("Item not found");
+        if (!data[id]) throw new Error("404 - Item not found");
         data[id] = { ...data[id], ...item };
         this.storage.writeData(data);
         return data[id];
@@ -58,7 +73,7 @@ export class CRUDHandler {
 
     delete(id: number) {
         const data = this.storage.readData();
-        if (!data[id]) throw new Error("Item not found");
+        if (!data[id]) throw new Error("404 - Item not found");
         delete data[id];
         this.storage.writeData(data);
         return true;
