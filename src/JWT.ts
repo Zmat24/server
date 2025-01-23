@@ -1,6 +1,5 @@
 import * as crypto from 'crypto';
 
-
 export function createJWT(
     payload: Record<string, any>,
     secret: string,
@@ -25,7 +24,6 @@ export function createJWT(
         .replace(/\//g, '_');
     return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
-
 
 export function verifyJWT(token: string, secret: string): boolean {
     const [encodedHeader, encodedPayload, signature] = token.split('.');
