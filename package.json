@@ -9,7 +9,7 @@
     "build": "tsc",
     "serve": "bun ./dist/src/server.js"
   },
-  "keywords": ["crud", "json" , "db" , "server", "bun"],
+  "keywords": ["crud", "json", "db", "server", "bun"],
   "author": "zmat24",
   "bugs": {
     "url": "https://github.com/zmat24/server/issues"
@@ -17,6 +17,7 @@
   "homepage": "https://github.com/zmat24/server#readme",
   "license": "MIT",
   "devDependencies": {
+    "@types/bun": "^1.2.0",
     "typescript": "^5.0.0"
   }
 }

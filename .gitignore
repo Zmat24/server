@@ -2,3 +2,4 @@ db
 dist
 .env
 schema.config.js
+node_modules
