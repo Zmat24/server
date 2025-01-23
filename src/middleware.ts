@@ -1,6 +1,7 @@
 import { Schema } from "./types";
 import { APIErrorResponse } from "./errors";
 import { verifyJWT } from "./JWT";
+import { performance } from 'perf_hooks';
 
 export interface MiddlewareContext {
     req: Request;
@@ -45,6 +46,18 @@ export const authMiddleware: Middleware = async (context) => {
     }
 };
 
+export const loggerMiddleware: Middleware = async (context: MiddlewareContext) => {
+    const startTime = performance.now();
+    const url = new URL(context.req.url);
+    const path = url.pathname.slice(1);
+    
+    console.log(`\n\x1b[35m\x1b[1mNew Request: \x1b[36m${path} (${new Date().toISOString()})\x1b[0m`);
+    console.log(`└── Completed in ${(performance.now() - startTime).toFixed(2)}ms`);
+    
+    return null;
+};
+
 export const middlewares: { [key: string]: Middleware } = {
     auth: authMiddleware,
+    logger: loggerMiddleware,
 }; 

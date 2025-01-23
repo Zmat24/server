@@ -2,6 +2,7 @@ import loadUserSchemaConfig from "./loadConfig";
 import { getStorage } from "./storage";
 import { APIErrorResponse } from "./errors";
 import { Schema, SchemaField } from "./types";
+import { Hasher } from './hash';
 
 const schemaCache: { [key: string]: any } = {};
 const validationCache = new Map<string, any>();
@@ -48,9 +49,15 @@ export async function validateData(
         });
     }
 
+    const processedItem = { ...item };
+
     for (const [fieldName, fieldConfig] of Object.entries(schema.fields) as [string, FieldConfig][]) {
-        const value = item[fieldName];
-        const { validation } = fieldConfig;
+        const value = processedItem[fieldName];
+        const { validation, hash } = fieldConfig;
+
+        if (hash && value) {
+            processedItem[fieldName] = await Hasher.hash(value);
+        }
 
         if (validation) {
             const rules = validation.split("|");
@@ -64,6 +71,8 @@ export async function validateData(
             }
         }
     }
+
+    Object.assign(item, processedItem);
 
     const result = null;
     validationCache.set(cacheKey, result);

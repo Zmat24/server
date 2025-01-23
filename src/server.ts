@@ -8,7 +8,14 @@ const handlers: { [key: string]: CRUDHandler } = {};
 const config = await loadUserSchemaConfig();
 
 for (const schemaName of Object.keys(config.schemas)) {
-    handlers[schemaName] = new CRUDHandler(config.storage, schemaName, config.schemas[schemaName]);
+    const schema = config.schemas[schemaName];
+    if (!schema.middleware) {
+        schema.middleware = [];
+    }
+    if (!schema.middleware.includes('logger')) {
+        schema.middleware.push('logger');
+    }
+    handlers[schemaName] = new CRUDHandler(config.storage, schemaName, schema);
 }
 
 const server = Bun.serve({
@@ -23,12 +30,6 @@ const server = Bun.serve({
                 headers: { "Content-Type": "text/html" },
             });
         }
-
-        console.log(
-            "\x1b[35m\x1b[1mNew Request: \x1b[36m" +
-            pathParts.join("/") +
-            "\x1b[90m (" + new Date().toISOString() + ")\x1b[0m"
-        );
 
         try {
             if (pathParts.length < 2) {
