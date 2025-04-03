@@ -1,8 +1,5 @@
 import loadUserSchemaConfig from "./loadConfig";
-import { getStorage } from "./storage";
 import { APIErrorResponse } from "./errors";
-import { Schema, SchemaField } from "./types";
-import { Hasher } from './hash';
 
 const schemaCache: { [key: string]: any } = {};
 const validationCache = new Map<string, any>();
@@ -56,7 +53,10 @@ export async function validateData(
         const { validation, hash } = fieldConfig;
 
         if (hash && value) {
-            processedItem[fieldName] = await Hasher.hash(value);
+            processedItem[fieldName] = await Bun.password.hash(value, {
+                algorithm: "bcrypt",
+                cost: process.env.COST ? parseInt(process.env.COST) : 4,
+            });
         }
 
         if (validation) {
@@ -64,7 +64,7 @@ export async function validateData(
             for (const rule of rules) {
                 if (rule === "required" && (!value || value.trim() === "")) {
                     return { 
-                        status: 422, 
+                        status: 422,
                         message: `Field "${fieldName}" is required.` 
                     };
                 }

@@ -21,7 +21,7 @@ export class CRUDHandler {
      * @param schema Optional schema definition (will use config if not provided)
      */
     constructor(storageType: "json" | "database", schemaName: string, schema?: SchemaField) {
-        this.storage = getStorage(storageType, schemaName);
+        this.storage = getStorage(storageType, schemaName , schema);
         this.schemaName = schemaName;
         this.schema = schema || config.schemas[schemaName];
         
@@ -29,7 +29,7 @@ export class CRUDHandler {
         if (this.schema.fields) {
             Object.entries(this.schema.fields).forEach(([fieldName, field]) => {
                 if (field.unique || field.indexed) {
-                    this.storage.createIndex(fieldName);
+                    // this.storage.createIndex(fieldName);
                 }
             });
         }

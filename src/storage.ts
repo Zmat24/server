@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { SchemaField } from "./types";
 
 interface StorageItem {
     data: any;
@@ -216,15 +217,25 @@ class JSONStorage {
         this.indexes.set(field, indexMap);
     }
 
+    private safeStringify(obj: any): string {
+        const seen = new WeakSet();
+        return JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                    return '[Circular]';
+                }
+                seen.add(value);
+            }
+            return value;
+        });
+    }
+
     private forceSave() {
         if (this.isDirty && this.cache) {
             try {
                 const stream = fs.createWriteStream(this.filePath);
-                
-                // نوشتن شروع فایل و last_id
                 stream.write(`{\n"last_id":${this.lastId}`);
                 
-                // نوشتن داده‌ها به صورت چانک
                 const entries = Object.entries(this.cache)
                     .filter(([key]) => key !== 'sortedIndexes' && key !== 'last_id');
                 
@@ -246,7 +257,7 @@ class JSONStorage {
                     chunk.forEach(([key, value], index) => {
                         const isFirstItem = currentChunk === 0 && index === 0;
                         stream.write(
-                            `${isFirstItem ? '\n,' : ','}\n"${key}":${JSON.stringify(value)}`
+                            `${isFirstItem ? '\n,' : ','}\n"${key}":${this.safeStringify(value)}`
                         );
                     });
                     
@@ -269,7 +280,7 @@ class JSONStorage {
     }
 }
 
-export function getStorage(type: "json" | "database", schemaName: string) {
+export function getStorage(type: "json" | "database", schemaName: string , schema?: SchemaField) {
     if (type === "json") return new JSONStorage(schemaName);
     throw new Error("Invalid storage type");
 }

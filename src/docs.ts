@@ -195,7 +195,7 @@ export function generateDocs(schemas: any): string {
             <div class="token-section">
                 <h3>Authentication Token</h3>
                 <input type="text" id="authToken" placeholder="Enter your JWT token" 
-                       value="" onchange="setAuthToken()" />
+                    value="" onchange="setAuthToken()" />
                 <p><small>Token will be saved in your browser for future requests</small></p>
             </div>
     `;
